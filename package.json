@@ -27,13 +27,17 @@
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.777.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.1",
+    "@types/morgan": "^1.9.9",
     "aws-sdk": "^2.1692.0",
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "mysql2": "^3.14.0",
     "redis": "^4.7.0"
   }
