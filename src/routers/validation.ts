@@ -1,5 +1,5 @@
-import { Router } from "express";
+import { Router } from 'express'
 
-const validationRouter = Router();
+const validationRouter = Router()
 
-export default validationRouter;
+export default validationRouter
