@@ -3,7 +3,8 @@ import { pool } from '../mysql/connection'
 import { GET_USER_BY_EMAIL, GET_USER_BY_ID } from '../mysql/queries'
 import { DELETE_USER_STATEMENT, INSERT_USER_STATEMENT } from '../mysql/mutations'
 import bcrypt from 'bcrypt'
-import { generateToken } from '../token/jwt-token-manager'
+import { generateToken, saveRefreshToken } from '../token/jwt-token-manager'
+import { encryptData } from '../encryption'
 
 const getUserBy = async (by: 'email' | 'id', value: string) => {
   try {
@@ -20,9 +21,12 @@ const getUserBy = async (by: 'email' | 'id', value: string) => {
   }
 }
 
-const setAuthTokens = (id: string, email: string, res: Response) => {
-  const token = generateToken(id, email, 'access')
-  const refreshToken = generateToken(id, email, 'refresh')
+const setAuthTokens = async (id: string, email: string, res: Response) => {
+  try {
+    const token = await generateToken(id, email, 'access')
+    const refreshToken = await generateToken(id, email, 'refresh')
+    await saveRefreshToken(refreshToken)
+  } catch (error) {}
 }
 
 const getUser = async (req: Request, res: Response) => {
