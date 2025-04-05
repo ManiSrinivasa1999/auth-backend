@@ -32,5 +32,6 @@ export async function loadConfig() {
     MYSQL_PORT: +process!.env!.MYSQL_PORT! || (await getSSMParameter('/app/auth/MYSQL_PORT')),
     JWT_SECRET_KEY: await getSSMParameter('/app/token/JWT_SECRET_KEY'),
     ENCRYPTION_KEY: await getSSMParameter('/app/token/ENCRYPTION_KEY'),
+    COOKIE_SECRET: await getSSMParameter('/app/token/COOKIE_SECRET'), 
   }
 }

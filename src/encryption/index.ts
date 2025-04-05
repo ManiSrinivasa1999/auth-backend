@@ -6,7 +6,7 @@ const algorithm = 'aes-256-cbc'
 
 export const encryptData = async (data: string) => {
   const config = await loadConfig()
-  const key = Buffer.from(config.ENCRYPTION_KEY)
+  const key = Buffer.from(config.ENCRYPTION_KEY, 'base64')
   const cipher = crypto.createCipheriv(algorithm, key, iv)
   let encrypted = cipher.update(data, 'utf-8', 'hex')
   return encrypted
@@ -14,7 +14,7 @@ export const encryptData = async (data: string) => {
 
 export const decryptData = async (encrypted: string) => {
   const config = await loadConfig()
-  const key = Buffer.from(config.ENCRYPTION_KEY)
+  const key = Buffer.from(config.ENCRYPTION_KEY, 'base64')
   const decipher = crypto.createDecipheriv(algorithm, key, iv)
   let decrypted = decipher.update(encrypted, 'hex', 'utf-8')
   decrypted += decipher.final('utf-8')

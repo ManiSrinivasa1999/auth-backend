@@ -10,7 +10,7 @@ const init = async () => {
   try {
     await loadConfig()
     await connectToDb()
-    // await initializeRedis();
+    await initializeRedis();
     const PORT = process.env.PORT || 5000
     app.listen(PORT, () => {
       console.info(`Application is running at ${PORT}`)

@@ -13,10 +13,10 @@ export const generateToken = async (id: string, email: string, tokenType: 'acces
 }
 
 export const decodeToken = (token: string) => {
-  return jwt.decode(token, {json: true})
+  return jwt.decode(token, { json: true })
 }
 
-export const saveRefreshToken = async (token: string) => {
+export const saveRefreshToken = async (token: string, encryptedToken: string) => {
   const decodedData = decodeToken(token)
   if (!decodedData) {
     throw new Error('Unable to decode token')

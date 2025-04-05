@@ -5,6 +5,7 @@ import { DELETE_USER_STATEMENT, INSERT_USER_STATEMENT } from '../mysql/mutations
 import bcrypt from 'bcrypt'
 import { generateToken, saveRefreshToken } from '../token/jwt-token-manager'
 import { encryptData } from '../encryption'
+import { ResultSetHeader } from 'mysql2/promise'
 
 const getUserBy = async (by: 'email' | 'id', value: string) => {
   try {
@@ -21,12 +22,37 @@ const getUserBy = async (by: 'email' | 'id', value: string) => {
   }
 }
 
+const setCookies = (accessToken: string, refreshToken: string, res: Response) => {
+  res.clearCookie('access_token', { domain: 'localhost', httpOnly: true, path: '/' })
+  res.clearCookie('refresh_token', { domain: 'localhost', httpOnly: true, path: '/' })
+  const expiryAccessToken = new Date(new Date().getTime() + 60 * 60 * 1000)
+  res.cookie('access_token', accessToken, {
+    domain: 'localhost',
+    httpOnly: true,
+    path: '/',
+    expires: expiryAccessToken,
+  })
+
+  const expiryRefreshToken = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+  res.cookie('refresh_token', refreshToken, {
+    domain: 'localhost',
+    httpOnly: true,
+    path: '/',
+    expires: expiryRefreshToken,
+  })
+  return;
+}
+
 const setAuthTokens = async (id: string, email: string, res: Response) => {
   try {
     const token = await generateToken(id, email, 'access')
     const refreshToken = await generateToken(id, email, 'refresh')
-    await saveRefreshToken(refreshToken)
-  } catch (error) {}
+    const encrptedToken = await encryptData(refreshToken)
+    await saveRefreshToken(refreshToken, encrptedToken)
+    setCookies(token, refreshToken, res)
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 const getUser = async (req: Request, res: Response) => {
@@ -61,7 +87,8 @@ const registerUser = async (req: Request, res: Response) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10)
     const connection = await pool.getConnection()
-    const result = await connection.query(INSERT_USER_STATEMENT, [name, email, hashedPassword])
+    const result = await connection.query<ResultSetHeader>(INSERT_USER_STATEMENT, [name, email, hashedPassword])
+    await setAuthTokens(String(result[0].insertId), email, res)
     return res.status(201).json({ message: 'User profile created successfully', user: result[0] })
   } catch (error) {
     console.error(error)
@@ -86,7 +113,7 @@ const loginUser = async (req: Request, res: Response) => {
     }
 
     // set token
-
+    await setAuthTokens(user.id, email, res)
     return res.status(200).json({ message: 'User login successfully', user })
   } catch (error) {
     console.error(error)
@@ -112,4 +139,5 @@ const deleteUser = async (req: Request, res: Response) => {
     throw error
   }
 }
+
 export { getUser, registerUser, loginUser, deleteUser }
