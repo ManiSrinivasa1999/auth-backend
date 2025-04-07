@@ -22,7 +22,7 @@ const getUserBy = async (by: 'email' | 'id', value: string) => {
   }
 }
 
-const setCookies = (accessToken: string, refreshToken: string, res: Response) => {
+export const setCookies = (accessToken: string, refreshToken: string, res: Response) => {
   res.clearCookie('access_token', { domain: 'localhost', httpOnly: true, path: '/' })
   res.clearCookie('refresh_token', { domain: 'localhost', httpOnly: true, path: '/' })
   const expiryAccessToken = new Date(new Date().getTime() + 60 * 60 * 1000)

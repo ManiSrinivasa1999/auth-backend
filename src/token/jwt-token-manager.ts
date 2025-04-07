@@ -30,3 +30,18 @@ export const saveRefreshToken = async (token: string, encryptedToken: string) =>
     console.error(error)
   }
 }
+
+export const verifyAndDecode = async (token: string) => {
+  const config = await loadConfig()
+  return new Promise((res, rej) => {
+    jwt.verify(token, config.JWT_SECRET_KEY, (err, payload) => {
+      if (err) {
+        console.log("Coundn't verify token")
+        rej(err)
+      } else {
+        console.log('Token verification successfull')
+        res(payload)
+      }
+    })
+  })
+}
