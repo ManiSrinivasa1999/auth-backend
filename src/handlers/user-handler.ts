@@ -31,6 +31,7 @@ const setCookies = (accessToken: string, refreshToken: string, res: Response) =>
     httpOnly: true,
     path: '/',
     expires: expiryAccessToken,
+    sameSite: "lax"
   })
 
   const expiryRefreshToken = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
@@ -39,6 +40,7 @@ const setCookies = (accessToken: string, refreshToken: string, res: Response) =>
     httpOnly: true,
     path: '/',
     expires: expiryRefreshToken,
+    sameSite: "lax"
   })
   return;
 }
