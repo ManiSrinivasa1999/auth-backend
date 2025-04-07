@@ -47,9 +47,9 @@ const setAuthTokens = async (id: string, email: string, res: Response) => {
   try {
     const token = await generateToken(id, email, 'access')
     const refreshToken = await generateToken(id, email, 'refresh')
-    const encrptedToken = await encryptData(refreshToken)
-    await saveRefreshToken(refreshToken, encrptedToken)
-    setCookies(token, refreshToken, res)
+    const encryptedToken = await encryptData(refreshToken)
+    await saveRefreshToken(refreshToken, encryptedToken)
+    setCookies(token, encryptedToken, res)
   } catch (error) {
     console.error(error)
   }
