@@ -35,3 +35,8 @@ export async function loadConfig() {
     COOKIE_SECRET: await getSSMParameter('/app/token/COOKIE_SECRET'), 
   }
 }
+
+export async function getEncryptionKey(): Promise<Buffer> {
+  const base64Key = await getSSMParameter("/app/token/ENCRYPTION_KEY")
+  return Buffer.from(base64Key, "base64")
+}
