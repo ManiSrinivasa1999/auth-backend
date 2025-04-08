@@ -8,8 +8,9 @@ import { encryptData } from '../encryption'
 import { ResultSetHeader } from 'mysql2/promise'
 
 const getUserBy = async (by: 'email' | 'id', value: string) => {
+  let connection
   try {
-    const connection = await pool.getConnection()
+    connection = await pool.getConnection()
     const result = await connection.query(by === 'email' ? GET_USER_BY_EMAIL : GET_USER_BY_ID, [
       value,
     ])
@@ -19,6 +20,8 @@ const getUserBy = async (by: 'email' | 'id', value: string) => {
   } catch (error) {
     console.error(error)
     throw error
+  } finally{
+    connection && connection.release()
   }
 }
 
@@ -91,6 +94,7 @@ const getUserProfile = async (req: Request, res: Response) => {
 }
 
 const registerUser = async (req: Request, res: Response) => {
+  let connection;
   try {
     const { name, email, password } = req.body
     if (!name || !email || !password) {
@@ -101,7 +105,7 @@ const registerUser = async (req: Request, res: Response) => {
       return res.status(409).json({ message: 'user already exists', user })
     }
     const hashedPassword = await bcrypt.hash(password, 10)
-    const connection = await pool.getConnection()
+    connection = await pool.getConnection()
     const result = await connection.query<ResultSetHeader>(INSERT_USER_STATEMENT, [
       name,
       email,
@@ -112,7 +116,8 @@ const registerUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error)
     return res.status(500).json({ message: 'Failed to create user profile, Try again later.' })
-    throw error
+  } finally {
+    connection && connection.release()
   }
 }
 
@@ -142,6 +147,7 @@ const loginUser = async (req: Request, res: Response) => {
 }
 
 const deleteUser = async (req: Request, res: Response) => {
+  let connection;
   try {
     const userId = req.params.id
     if (!userId || isNaN(Number(userId))) {
@@ -149,13 +155,14 @@ const deleteUser = async (req: Request, res: Response) => {
         message: 'Invalid user Id',
       })
     }
-    const connection = await pool.getConnection()
+    connection = await pool.getConnection()
     const result = await connection.query(DELETE_USER_STATEMENT, [userId])
     return res.status(200).json({ message: 'User profile deleted successfully', user: result[0] })
   } catch (error) {
     console.error(error)
     return res.status(500).json({ message: 'Failed to delete user, Try again later.' })
-    throw error
+  } finally {
+    connection && connection.release()
   }
 }
 

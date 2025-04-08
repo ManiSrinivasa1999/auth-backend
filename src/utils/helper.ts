@@ -22,7 +22,6 @@ export const generateRedisKey = (userId: string) => {
 export const validateAccessToken = async (token: string) => {
   try {
     const decodedData = (await verifyAndDecode(token)) as TokenInfo | null
-    console.log(token, decodedData, "Mani decode")
     if (decodedData) {
       return true
     } else {
@@ -35,10 +34,8 @@ export const validateAccessToken = async (token: string) => {
 
 export const validateRefreshToken = async (encryptedToken: string) => {
   const jwtToken = await decryptData(encryptedToken)
-  console.log(jwtToken, "jwtToken")
   try {
     const decodedData = (await verifyAndDecode(jwtToken)) as TokenInfo | null
-    console.log(decodedData, "decodedDataMani")
     if (!decodedData) {
       return false
     }

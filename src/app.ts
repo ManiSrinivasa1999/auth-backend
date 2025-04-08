@@ -15,12 +15,6 @@ let config
   app.use(cookieParser(config.COOKIE_SECRET))
   app.use(helmet())
   app.use(morgan('dev'))
-  app.use((req, res, next) => {
-    console.log("Req received");
-    console.log("Req URL", req.baseUrl + req.url);
-    console.log(JSON.stringify(req.headers));
-    next()
-  })
   app.use('/api/v1/auth', appRouter)
 })()
 
