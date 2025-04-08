@@ -31,7 +31,7 @@ export const setCookies = (accessToken: string, refreshToken: string, res: Respo
     httpOnly: true,
     path: '/',
     expires: expiryAccessToken,
-    sameSite: "lax"
+    sameSite: 'lax',
   })
 
   const expiryRefreshToken = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
@@ -40,9 +40,9 @@ export const setCookies = (accessToken: string, refreshToken: string, res: Respo
     httpOnly: true,
     path: '/',
     expires: expiryRefreshToken,
-    sameSite: "lax"
+    sameSite: 'lax',
   })
-  return;
+  return
 }
 
 const setAuthTokens = async (id: string, email: string, res: Response) => {
@@ -57,7 +57,7 @@ const setAuthTokens = async (id: string, email: string, res: Response) => {
   }
 }
 
-const getUser = async (req: Request, res: Response) => {
+const getUserByID = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id
     if (!userId || isNaN(Number(userId))) {
@@ -73,7 +73,20 @@ const getUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error)
     return res.status(500).json({ message: 'Unexpected error occured, Try again later.' })
-    throw error
+  }
+}
+
+const getUserProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = res.locals.jwtData.id
+    const user = await getUserBy('id', userId)
+    if (!user) {
+      return res.status(400).json({ message: 'No user found' })
+    }
+    return res.status(200).json({ message: 'User profile details', user })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ message: 'Unexpected error occured, Try again later.' })
   }
 }
 
@@ -89,7 +102,11 @@ const registerUser = async (req: Request, res: Response) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10)
     const connection = await pool.getConnection()
-    const result = await connection.query<ResultSetHeader>(INSERT_USER_STATEMENT, [name, email, hashedPassword])
+    const result = await connection.query<ResultSetHeader>(INSERT_USER_STATEMENT, [
+      name,
+      email,
+      hashedPassword,
+    ])
     await setAuthTokens(String(result[0].insertId), email, res)
     return res.status(201).json({ message: 'User profile created successfully', user: result[0] })
   } catch (error) {
@@ -142,4 +159,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 }
 
-export { getUser, registerUser, loginUser, deleteUser }
+export { getUserByID, getUserProfile, registerUser, loginUser, deleteUser }
